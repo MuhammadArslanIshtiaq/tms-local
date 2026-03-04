@@ -71,7 +71,7 @@ export const About = () => {
           variants={fadeInUp}
           className="mt-2 text-3xl font-bold tracking-tight md:text-4xl"
         >
-          About TechSolve
+          About TMS DigitalHub
         </motion.h2>
         <motion.p
           variants={fadeInUp}

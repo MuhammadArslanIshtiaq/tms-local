@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -23,13 +25,20 @@ export const Header = () => {
         className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 sm:px-8"
         aria-label="Main navigation"
       >
-        <a
+        <Link
           href="#"
-          className="text-xl font-semibold text-foreground transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-electric-blue focus:ring-offset-2 focus:ring-offset-background"
-          aria-label="TechSolve home"
+          className="flex items-center gap-2 transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-electric-blue focus:ring-offset-2 focus:ring-offset-background"
+          aria-label="TMS DigitalHub home"
         >
-          <span className="text-foreground">TechSolve</span>
-        </a>
+          <Image
+            src={theme === "dark" ? "/tms-logo-dark.png" : "/tms-logo.png"}
+            alt="TMS DigitalHub"
+            width={140}
+            height={36}
+            className="h-16 w-auto sm:h-20"
+            priority
+          />
+        </Link>
 
         <div className="flex items-center gap-6 sm:gap-8">
           <ul className="hidden items-center gap-6 sm:flex sm:gap-8">

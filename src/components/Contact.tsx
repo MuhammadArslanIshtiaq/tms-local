@@ -5,7 +5,7 @@ import { Mail, MapPin, Send } from "lucide-react";
 import { useState } from "react";
 
 const contactInfo = {
-  email: "hr@techsolve.io",
+  email: "hr@tmsdigitalhub.com",
   office: "1001 S Main St STE 500, Kalispell MT 59901, USA",
   tagline: "Serving clients worldwide",
 };

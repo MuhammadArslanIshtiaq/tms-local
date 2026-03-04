@@ -11,11 +11,15 @@ import { useRef, useState, useCallback } from "react";
 import {
   Cloud,
   Shield,
-  Brain,
   Code2,
   Smartphone,
   BarChart3,
   Workflow,
+  LineChart,
+  ScanLine,
+  Search,
+  Share2,
+  Palette,
 } from "lucide-react";
 
 type ServiceCardProps = {
@@ -137,10 +141,34 @@ const services = [
       "End-to-end digital transformation services to modernize business processes, automate workflows, and drive innovation.",
   },
   {
-    icon: Brain,
-    title: "AI & ML Integration",
+    icon: LineChart,
+    title: "Analytics & Tracking",
     description:
-      "Integrate intelligent automation and machine learning into your workflows. Custom AI solutions that drive insights and efficiency.",
+      "Comprehensive analytics setup including GTM, GA4, and conversion tracking to measure performance and inform decisions.",
+  },
+  {
+    icon: ScanLine,
+    title: "Tracking Pixel Implementation",
+    description:
+      "Advanced tracking pixel setup for Facebook, Google, and other advertising platforms to optimize your campaigns.",
+  },
+  {
+    icon: Search,
+    title: "SEO Services",
+    description:
+      "Search engine optimization to improve your website visibility, organic traffic, and rankings on major search engines.",
+  },
+  {
+    icon: Share2,
+    title: "Social Media Management",
+    description:
+      "Complete social media strategy and management across all major platforms to grow your brand and engage audiences.",
+  },
+  {
+    icon: Palette,
+    title: "Graphic Design",
+    description:
+      "Professional graphic design services for branding, marketing materials, and digital assets that stand out.",
   },
 ];
 

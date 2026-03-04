@@ -6,7 +6,6 @@ import { StatsBar } from "@/components/StatsBar";
 import { Services } from "@/components/Services";
 import { TechEcosystem } from "@/components/TechEcosystem";
 import { Features } from "@/components/Features";
-import { RecentWork } from "@/components/RecentWork";
 import { ClientResultsFaq } from "@/components/ClientResultsFaq";
 import { About } from "@/components/About";
 import { Contact } from "@/components/Contact";
@@ -23,9 +22,8 @@ export default function Home() {
         <Services />
         <TechEcosystem />
         <Features />
-        <RecentWork />
-        <ClientResultsFaq />
         <About />
+        <ClientResultsFaq />
         <Contact />
         <Footer />
       </main>

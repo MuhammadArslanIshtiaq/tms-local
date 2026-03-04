@@ -64,6 +64,8 @@
 }
 
 html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
@@ -178,15 +180,19 @@ body {
   }
 }
 
-[data-theme="light"] .hero-gradient-text {
+html[data-theme="light"] .hero-gradient-text {
   background: linear-gradient(
     135deg,
     #0A0A0A 0%,
-    #1a1a1a 25%,
+    #1e3a5f 25%,
     #0070f3 50%,
     #0056b3 75%,
     #0A0A0A 100%
   );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* Hero: Primary button glow on hover */

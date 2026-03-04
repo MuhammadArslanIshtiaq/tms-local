@@ -1,7 +1,9 @@
 "use client";
 
-import { motion } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const footerLinks = {
   services: [
@@ -17,6 +19,8 @@ const footerLinks = {
 };
 
 export const Footer = () => {
+  const { theme } = useTheme();
+
   return (
     <footer
       className="border-t border-slate-gray/20 bg-charcoal/60"
@@ -30,10 +34,14 @@ export const Footer = () => {
             viewport={{ once: true }}
             className="max-w-sm"
           >
-            <div className="flex size-12 items-center justify-center rounded-lg bg-electric-blue/20 text-xl font-bold text-electric-blue">
-              TS
-            </div>
-            <h3 className="mt-4 text-lg font-semibold">TechSolve</h3>
+            <Image
+              src={theme === "dark" ? "/tms-logo-dark.png" : "/tms-logo.png"}
+              alt="TMS DigitalHub"
+              width={120}
+              height={120}
+              className="h-24 w-auto"
+            />
+            <h3 className="mt-4 text-lg font-semibold">TMS DigitalHub</h3>
             <p className="mt-2 text-sm text-slate-gray">
               Leading IT services company delivering custom digital solutions
               for government, semi-government, and enterprise clients.
@@ -73,7 +81,7 @@ export const Footer = () => {
               </h4>
               <ul className="mt-4 space-y-3">
                 {footerLinks.legal.map((link) => (
-                  <li key={link.href}>
+                  <li key={link.label}>
                     <Link
                       href={link.href}
                       className="text-sm text-slate-gray transition-colors hover:text-electric-blue"
@@ -92,7 +100,7 @@ export const Footer = () => {
           viewport={{ once: true }}
           className="mt-12 border-t border-slate-gray/20 pt-8 text-center text-sm text-slate-gray"
         >
-          © {new Date().getFullYear()} TechSolve. All rights reserved.
+          © {new Date().getFullYear()} TMS DigitalHub. All rights reserved.
         </motion.div>
       </div>
     </footer>

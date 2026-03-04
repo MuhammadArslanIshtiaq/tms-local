@@ -21,7 +21,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TechSolve | Digital Solutions, Crafted to Perfection",
+  title: "TMS DigitalHub | Digital Solutions, Crafted to Perfection",
   description:
     "Custom software development, web solutions, and IT infrastructure for government, enterprise, and scale-up clients worldwide.",
 };

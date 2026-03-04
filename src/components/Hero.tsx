@@ -1,8 +1,22 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, FolderKanban } from "lucide-react";
 import { Magnetic } from "./Magnetic";
+
+const ROTATING_TERMS = [
+  "Software Development",
+  "Cloud Solutions",
+  "Data Analytics",
+  "Mobile Development",
+  "Cybersecurity",
+  "Digital Transformation",
+  "Web Solutions",
+  "IT Infrastructure",
+] as const;
+
+const ROTATE_INTERVAL_MS = 2800;
 
 const fadeInUp = {
   initial: { opacity: 0, y: 28 },
@@ -20,6 +34,16 @@ const staggerContainer = {
 };
 
 export const Hero = () => {
+  const [termIndex, setTermIndex] = useState(0);
+  const currentTerm = ROTATING_TERMS[termIndex];
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setTermIndex((prev) => (prev + 1) % ROTATING_TERMS.length);
+    }, ROTATE_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, []);
+
   return (
     <section
       className="relative flex min-h-[85vh] w-full items-center justify-center overflow-hidden px-6 py-24 sm:min-h-[90vh] sm:px-8 md:px-12 lg:px-16"
@@ -38,12 +62,30 @@ export const Hero = () => {
           animate="animate"
           className="flex flex-col items-center text-center"
         >
-          <motion.p
+          <motion.div
             variants={fadeInUp}
-            className="text-sm font-medium uppercase tracking-[0.2em] text-electric-blue"
+            className="flex justify-center"
+            aria-live="polite"
+            aria-atomic="true"
           >
-            Software Development
-          </motion.p>
+            <div className="relative min-h-[2.5em] w-full">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={currentTerm}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{
+                    duration: 0.4,
+                    ease: [0.25, 0.46, 0.45, 0.94],
+                  }}
+                  className="absolute left-1/2 top-0 -translate-x-1/2 whitespace-nowrap text-sm font-medium uppercase tracking-[0.2em] text-electric-blue"
+                >
+                  {currentTerm}
+                </motion.span>
+              </AnimatePresence>
+            </div>
+          </motion.div>
           <motion.h1
             variants={fadeInUp}
             className="mt-3 max-w-4xl text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
