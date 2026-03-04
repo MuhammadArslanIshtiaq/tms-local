@@ -1,0 +1,250 @@
+@import "tailwindcss";
+
+/* Cyber-Professional Color Palette */
+:root,
+[data-theme="dark"] {
+  /* Primary palette */
+  --charcoal: #0A0A0A;
+  --electric-blue: #0070F3;
+  --slate-gray: #888888;
+
+  /* Semantic mappings - Dark (default) */
+  --background: var(--charcoal);
+  --foreground: #F5F5F5;
+  --muted: var(--slate-gray);
+  --accent: var(--electric-blue);
+  --accent-dark: #0056b3;
+}
+
+/* Light theme */
+[data-theme="light"] {
+  --background: #FAFAFA;
+  --foreground: #0A0A0A;
+  --charcoal: #F0F0F0;
+  --slate-gray: #64748B;
+  --muted: var(--slate-gray);
+}
+
+@theme inline {
+  /* Core colors - Tailwind v4 */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-charcoal: var(--charcoal);
+  --color-electric-blue: var(--electric-blue);
+  --color-slate-gray: var(--slate-gray);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-dark: var(--accent-dark);
+
+  /* Typography - Inter primary, Geist fallback */
+  --font-sans: var(--font-inter), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Accordion animations */
+  --animate-accordion-down: accordion-down 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  --animate-accordion-up: accordion-up 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+}
+
+html {
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* Hero: Animated mesh gradient background */
+.hero-mesh-gradient {
+  background: var(--charcoal);
+}
+
+.hero-mesh-gradient::before,
+.hero-mesh-gradient::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+  animation: mesh-float 18s ease-in-out infinite;
+}
+
+.hero-mesh-gradient::before {
+  width: 60vmax;
+  height: 60vmax;
+  top: -20%;
+  left: -10%;
+  background: radial-gradient(
+    circle,
+    rgba(0, 112, 243, 0.25) 0%,
+    rgba(0, 112, 243, 0.08) 40%,
+    transparent 70%
+  );
+  animation-delay: 0s;
+}
+
+.hero-mesh-gradient::after {
+  width: 50vmax;
+  height: 50vmax;
+  bottom: -15%;
+  right: -10%;
+  background: radial-gradient(
+    circle,
+    rgba(136, 136, 136, 0.15) 0%,
+    rgba(136, 136, 136, 0.05) 40%,
+    transparent 70%
+  );
+  animation-delay: -9s;
+}
+
+.hero-mesh-blob {
+  position: absolute;
+  width: 40vmax;
+  height: 40vmax;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.2;
+  background: radial-gradient(
+    circle,
+    rgba(0, 112, 243, 0.2) 0%,
+    transparent 60%
+  );
+  animation: mesh-float 14s ease-in-out infinite;
+  animation-delay: -4s;
+}
+
+@keyframes mesh-float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(3%, -3%) scale(1.02);
+  }
+  66% {
+    transform: translate(-2%, 2%) scale(0.98);
+  }
+}
+
+/* Hero: Gradient text effect */
+.hero-gradient-text {
+  background: linear-gradient(
+    135deg,
+    #f5f5f5 0%,
+    #e0e0e0 25%,
+    #0070f3 50%,
+    #0056b3 75%,
+    #f5f5f5 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-text-shift 8s ease-in-out infinite;
+}
+
+@keyframes gradient-text-shift {
+  0%,
+  100% {
+    background-position: 0% center;
+  }
+  50% {
+    background-position: 100% center;
+  }
+}
+
+[data-theme="light"] .hero-gradient-text {
+  background: linear-gradient(
+    135deg,
+    #0A0A0A 0%,
+    #1a1a1a 25%,
+    #0070f3 50%,
+    #0056b3 75%,
+    #0A0A0A 100%
+  );
+}
+
+/* Hero: Primary button glow on hover */
+.hero-primary-btn:hover {
+  box-shadow:
+    0 0 24px rgba(0, 112, 243, 0.5),
+    0 0 48px rgba(0, 112, 243, 0.25);
+}
+
+/* Hero: Secondary button glassmorphism border */
+.hero-secondary-btn {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.hero-secondary-btn:hover {
+  border-color: rgba(0, 112, 243, 0.4);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--electric-blue);
+}
+
+/* Tech Ecosystem: Seamless infinite horizontal marquee */
+.marquee-container {
+  overflow: hidden;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 5%,
+    black 95%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 5%,
+    black 95%,
+    transparent 100%
+  );
+}
+
+.marquee-track {
+  display: flex;
+  gap: 2rem;
+  width: max-content;
+  animation: marquee-scroll 40s linear infinite;
+  will-change: transform;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* Animate by exactly 25% (one of four identical copies) for seamless loop */
+@keyframes marquee-scroll {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-25%, 0, 0);
+  }
+}
