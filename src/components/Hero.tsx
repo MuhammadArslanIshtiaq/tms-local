@@ -110,7 +110,7 @@ export const Hero = () => {
           >
             <Magnetic className="inline-flex">
               <a
-                href="#contact"
+                href="/#contact"
                 className="hero-primary-btn group inline-flex items-center justify-center gap-2 rounded-xl bg-electric-blue px-8 py-4 text-base font-medium text-white transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-electric-blue focus:ring-offset-2 focus:ring-offset-charcoal sm:px-10 sm:py-5"
                 aria-label="Hire our team"
               >
@@ -123,7 +123,7 @@ export const Hero = () => {
             </Magnetic>
             <Magnetic className="inline-flex">
               <a
-                href="#services"
+                href="/#services"
                 className="hero-secondary-btn inline-flex items-center justify-center gap-2 rounded-xl px-8 py-4 text-base font-medium text-foreground backdrop-blur-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-electric-blue focus:ring-offset-2 focus:ring-offset-charcoal sm:px-10 sm:py-5"
                 aria-label="Explore our services"
               >

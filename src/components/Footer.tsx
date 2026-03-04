@@ -7,14 +7,14 @@ import { useTheme } from "@/contexts/ThemeContext";
 
 const footerLinks = {
   services: [
-    { href: "#services", label: "Services" },
-    { href: "#case-studies", label: "Case Studies" },
-    { href: "#about", label: "About" },
-    { href: "#contact", label: "Contact" },
+    { href: "/#services", label: "Services" },
+    { href: "/#case-studies", label: "Case Studies" },
+    { href: "/#about", label: "About" },
+    { href: "/#contact", label: "Contact" },
   ],
   legal: [
-    { href: "#", label: "Privacy Policy" },
-    { href: "#", label: "Terms of Service" },
+    { href: "/privacy-policy", label: "Privacy Policy" },
+    { href: "/terms-of-service", label: "Terms of Service" },
   ],
 };
 

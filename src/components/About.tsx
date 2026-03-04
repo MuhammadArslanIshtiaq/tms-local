@@ -135,7 +135,7 @@ export const About = () => {
 
         <motion.div variants={fadeInUp} className="mt-16 text-center">
           <a
-            href="#contact"
+            href="/#contact"
             className="hero-primary-btn inline-flex items-center gap-2 rounded-xl bg-electric-blue px-8 py-4 text-base font-medium text-white transition-all duration-300 hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-electric-blue focus:ring-offset-2 focus:ring-offset-charcoal"
           >
             Start Your Journey

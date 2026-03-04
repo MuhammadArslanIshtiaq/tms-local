@@ -7,10 +7,10 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 
 const navLinks = [
-  { href: "#services", label: "Services" },
-  { href: "#case-studies", label: "Case Studies" },
-  { href: "#about", label: "About" },
-  { href: "#contact", label: "Contact" },
+  { href: "/#services", label: "Services" },
+  { href: "/#case-studies", label: "Case Studies" },
+  { href: "/#about", label: "About" },
+  { href: "/#contact", label: "Contact" },
 ];
 
 export const Header = () => {
@@ -26,7 +26,7 @@ export const Header = () => {
         aria-label="Main navigation"
       >
         <Link
-          href="#"
+          href="/"
           className="flex items-center gap-2 transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-electric-blue focus:ring-offset-2 focus:ring-offset-background"
           aria-label="TMS DigitalHub home"
         >

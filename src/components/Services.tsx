@@ -6,26 +6,16 @@ import {
   useSpring,
   useMotionTemplate,
 } from "framer-motion";
-import { type LucideIcon } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import Link from "next/link";
 import { useRef, useState, useCallback } from "react";
-import {
-  Cloud,
-  Shield,
-  Code2,
-  Smartphone,
-  BarChart3,
-  Workflow,
-  LineChart,
-  ScanLine,
-  Search,
-  Share2,
-  Palette,
-} from "lucide-react";
+import { services } from "@/data/services";
 
 type ServiceCardProps = {
   icon: LucideIcon;
   title: string;
   description: string;
+  slug: string;
 };
 
 const cardVariants = {
@@ -33,7 +23,7 @@ const cardVariants = {
   animate: { opacity: 1, y: 0 },
 };
 
-const ServiceCard = ({ icon: Icon, title, description }: ServiceCardProps) => {
+const ServiceCard = ({ icon: Icon, title, description, slug }: ServiceCardProps) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -73,104 +63,33 @@ const ServiceCard = ({ icon: Icon, title, description }: ServiceCardProps) => {
   }, []);
 
   return (
-    <motion.div
-      ref={cardRef}
-      variants={cardVariants}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      whileHover={{ y: -8 }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className="service-card relative rounded-xl border border-slate-gray/20 p-[1px] transition-colors"
-      style={{ background }}
-    >
-      {/* Inner card content */}
-      <div className="relative z-10 h-full rounded-[11px] bg-charcoal/80 p-6 backdrop-blur-sm">
-        <motion.div
-          animate={isHovered ? { scale: 1.1, rotate: 5 } : { scale: 1, rotate: 0 }}
-          transition={{ type: "spring", stiffness: 400, damping: 15 }}
-          className="inline-flex"
-        >
-          <Icon
-            className="size-11 text-electric-blue"
-            aria-hidden
-          />
-        </motion.div>
-        <h3 className="mt-5 text-xl font-semibold">{title}</h3>
-        <p className="mt-3 text-slate-gray">{description}</p>
-      </div>
-    </motion.div>
+    <Link href={`/services/${slug}`} className="block focus:outline-none focus:ring-2 focus:ring-electric-blue focus:ring-offset-2 focus:ring-offset-background rounded-xl">
+      <motion.div
+        ref={cardRef}
+        variants={cardVariants}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        whileHover={{ y: -8 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        className="service-card relative rounded-xl border border-slate-gray/20 p-[1px] transition-colors"
+        style={{ background }}
+      >
+        <div className="relative z-10 h-full rounded-[11px] bg-charcoal/80 p-6 backdrop-blur-sm">
+          <motion.div
+            animate={isHovered ? { scale: 1.1, rotate: 5 } : { scale: 1, rotate: 0 }}
+            transition={{ type: "spring", stiffness: 400, damping: 15 }}
+            className="inline-flex"
+          >
+            <Icon className="size-11 text-electric-blue" aria-hidden />
+          </motion.div>
+          <h3 className="mt-5 text-xl font-semibold">{title}</h3>
+          <p className="mt-3 text-slate-gray">{description}</p>
+        </div>
+      </motion.div>
+    </Link>
   );
 };
-
-const services = [
-  {
-    icon: Code2,
-    title: "Custom Software Development",
-    description:
-      "Applications tailored to your business needs, built with modern technologies and best practices for scalability and maintainability.",
-  },
-  {
-    icon: Cloud,
-    title: "Cloud Solutions",
-    description:
-      "Scalable cloud infrastructure and migration services to modernize your IT environment. AWS, Azure, and GCP expertise.",
-  },
-  {
-    icon: BarChart3,
-    title: "Data Analytics",
-    description:
-      "Transform your data into actionable insights with advanced analytics, BI dashboards, and machine learning pipelines.",
-  },
-  {
-    icon: Smartphone,
-    title: "Mobile App Development",
-    description:
-      "Native and cross-platform mobile applications for iOS and Android. React Native and Flutter for unified experiences.",
-  },
-  {
-    icon: Shield,
-    title: "Cybersecurity",
-    description:
-      "Comprehensive security solutions to protect your digital assets. Compliance, penetration testing, and zero-trust architecture.",
-  },
-  {
-    icon: Workflow,
-    title: "Digital Transformation",
-    description:
-      "End-to-end digital transformation services to modernize business processes, automate workflows, and drive innovation.",
-  },
-  {
-    icon: LineChart,
-    title: "Analytics & Tracking",
-    description:
-      "Comprehensive analytics setup including GTM, GA4, and conversion tracking to measure performance and inform decisions.",
-  },
-  {
-    icon: ScanLine,
-    title: "Tracking Pixel Implementation",
-    description:
-      "Advanced tracking pixel setup for Facebook, Google, and other advertising platforms to optimize your campaigns.",
-  },
-  {
-    icon: Search,
-    title: "SEO Services",
-    description:
-      "Search engine optimization to improve your website visibility, organic traffic, and rankings on major search engines.",
-  },
-  {
-    icon: Share2,
-    title: "Social Media Management",
-    description:
-      "Complete social media strategy and management across all major platforms to grow your brand and engage audiences.",
-  },
-  {
-    icon: Palette,
-    title: "Graphic Design",
-    description:
-      "Professional graphic design services for branding, marketing materials, and digital assets that stand out.",
-  },
-];
 
 const staggerContainer = {
   animate: {
@@ -209,10 +128,11 @@ export const Services = () => {
       <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {services.map((service) => (
           <ServiceCard
-            key={service.title}
+            key={service.slug}
             icon={service.icon}
             title={service.title}
-            description={service.description}
+            description={service.shortDescription}
+            slug={service.slug}
           />
         ))}
       </div>
