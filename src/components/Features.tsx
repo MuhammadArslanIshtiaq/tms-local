@@ -2,138 +2,229 @@
 
 import { motion } from "framer-motion";
 import {
-  Shield,
   Activity,
   Cloud,
-  Plug,
   Code2,
+  Plug,
+  Shield,
+  Users,
   type LucideIcon,
 } from "lucide-react";
+import type { ReactNode } from "react";
+import { SectionHeading } from "./SectionHeading";
+import { useSpotlight } from "@/hooks/useSpotlight";
+import { staggerChild, staggerParent } from "./Reveal";
 
-type FeatureTileProps = {
+/* -------------------------------------------------------------------------- */
+/* Decorative tile visuals                                                     */
+/* -------------------------------------------------------------------------- */
+
+const ShieldVisual = () => (
+  <div className="pointer-events-none absolute -right-10 -top-6 size-56 opacity-70" aria-hidden>
+    {[0, 1, 2].map((ring) => (
+      <motion.span
+        key={ring}
+        className="absolute inset-0 m-auto rounded-full border border-accent/25"
+        style={{ width: `${45 + ring * 26}%`, height: `${45 + ring * 26}%` }}
+        animate={{ scale: [1, 1.06, 1], opacity: [0.55, 0.2, 0.55] }}
+        transition={{
+          duration: 4,
+          repeat: Infinity,
+          delay: ring * 0.5,
+          ease: "easeInOut",
+        }}
+      />
+    ))}
+    <span className="absolute inset-0 m-auto size-[18%] rounded-full bg-accent/40 blur-md" />
+  </div>
+);
+
+const PulseVisual = () => (
+  <div className="pointer-events-none absolute inset-x-6 bottom-5 h-12 opacity-80" aria-hidden>
+    <svg viewBox="0 0 200 40" className="size-full" preserveAspectRatio="none">
+      <motion.path
+        d="M0 26 L26 26 L34 10 L44 34 L54 18 L64 26 L92 26 L100 6 L110 34 L120 26 L200 26"
+        fill="none"
+        stroke="var(--accent)"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        initial={{ pathLength: 0, opacity: 0 }}
+        whileInView={{ pathLength: 1, opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 2, ease: "easeInOut" }}
+      />
+    </svg>
+  </div>
+);
+
+const CodeVisual = () => {
+  const lines = [
+    { w: "62%", c: "bg-accent/60" },
+    { w: "84%", c: "bg-slate-gray/30" },
+    { w: "48%", c: "bg-accent-2/50" },
+    { w: "72%", c: "bg-slate-gray/25" },
+    { w: "38%", c: "bg-accent-3/45" },
+  ];
+
+  return (
+    <div
+      className="pointer-events-none absolute bottom-6 right-6 hidden w-56 flex-col gap-2 rounded-xl border border-line bg-background/50 p-4 backdrop-blur-sm sm:flex"
+      aria-hidden
+    >
+      <div className="mb-1 flex gap-1.5">
+        {["bg-red-400/50", "bg-amber-400/50", "bg-emerald-400/50"].map((dot) => (
+          <span key={dot} className={`size-2 rounded-full ${dot}`} />
+        ))}
+      </div>
+      {lines.map((line, i) => (
+        <motion.span
+          key={i}
+          className={`h-1.5 rounded-full ${line.c}`}
+          initial={{ width: 0 }}
+          whileInView={{ width: line.w }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7, delay: 0.15 + i * 0.09, ease: "easeOut" }}
+        />
+      ))}
+    </div>
+  );
+};
+
+const TeamVisual = () => (
+  <div className="pointer-events-none absolute bottom-7 right-7 hidden items-center sm:flex" aria-hidden>
+    {["TM", "SD", "AR", "+9"].map((initials, i) => (
+      <motion.span
+        key={initials}
+        initial={{ opacity: 0, scale: 0.6, x: 12 }}
+        whileInView={{ opacity: 1, scale: 1, x: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.45, delay: i * 0.09, ease: [0.22, 1, 0.36, 1] }}
+        className={`-ml-3 flex size-11 items-center justify-center rounded-full border border-line text-xs font-semibold backdrop-blur-md first:ml-0 ${
+          i === 3
+            ? "bg-accent/20 text-accent"
+            : "bg-surface text-slate-gray"
+        }`}
+      >
+        {initials}
+      </motion.span>
+    ))}
+  </div>
+);
+
+/* -------------------------------------------------------------------------- */
+
+type Feature = {
   title: string;
   description: string;
   icon: LucideIcon;
-  index: number;
-  variant?: "default" | "glow";
+  wide?: boolean;
+  visual?: ReactNode;
 };
 
-const tileVariants = {
-  initial: { opacity: 0, y: 16 },
-  animate: { opacity: 1, y: 0 },
-};
-
-const FeatureTile = ({
-  title,
-  description,
-  icon: Icon,
-  index,
-  variant = "default",
-}: FeatureTileProps) => (
-  <motion.div
-    variants={tileVariants}
-    initial="initial"
-    whileInView="animate"
-    viewport={{ once: true, margin: "-40px" }}
-    transition={{
-      duration: 0.4,
-      delay: index * 0.06,
-      ease: [0.25, 0.46, 0.45, 0.94],
-    }}
-    className="group flex flex-col gap-3 rounded-xl border border-slate-gray/30 bg-charcoal/60 p-4 transition-colors duration-300 hover:border-blue-500 sm:p-5"
-  >
-    <div
-      className={
-        variant === "glow"
-          ? "inline-flex w-fit rounded-lg bg-electric-blue/10 p-2"
-          : "inline-flex w-fit rounded-lg bg-slate-gray/10 p-2"
-      }
-    >
-      <Icon
-        className={`size-5 text-electric-blue sm:size-6 ${variant === "glow" ? "drop-shadow-[0_0_8px_rgba(0,112,243,0.5)]" : ""}`}
-        aria-hidden
-      />
-    </div>
-    <h3 className="text-base font-semibold leading-tight sm:text-lg">{title}</h3>
-    <p className="text-sm leading-snug text-slate-gray">{description}</p>
-  </motion.div>
-);
-
-const features = [
+const features: Feature[] = [
   {
-    title: "Enterprise Security",
-    description: "Zero-trust architecture and compliance frameworks.",
+    title: "Enterprise-grade security",
+    description:
+      "Zero-trust architecture, encryption in transit and at rest, and audit-ready controls mapped to SOC 2, ISO 27001, and GDPR.",
     icon: Shield,
-    variant: "glow" as const,
-    index: 0,
+    wide: true,
+    visual: <ShieldVisual />,
   },
   {
-    title: "24/7 Monitoring",
-    description: "Intelligent alerts and automated response protocols.",
-    icon: Activity,
-    variant: "default" as const,
-    index: 1,
-  },
-  {
-    title: "Cloud Migration",
-    description: "Seamless transition with minimal downtime.",
+    title: "Cloud migration",
+    description: "Move legacy workloads with minimal downtime and no data loss.",
     icon: Cloud,
-    variant: "default" as const,
-    index: 2,
   },
   {
-    title: "API Integration",
-    description: "Connect systems with scalable API strategies.",
-    icon: Plug,
-    variant: "default" as const,
-    index: 3,
+    title: "24/7 monitoring",
+    description: "Intelligent alerting with automated incident response.",
+    icon: Activity,
+    visual: <PulseVisual />,
   },
   {
-    title: "Custom Dev",
-    description: "Tailored solutions for your unique requirements.",
+    title: "Software built to last",
+    description:
+      "Typed, tested, documented code with CI/CD from day one — so the system you launch is the system you can still extend in five years.",
     icon: Code2,
-    variant: "default" as const,
-    index: 4,
+    wide: true,
+    visual: <CodeVisual />,
+  },
+  {
+    title: "API integration",
+    description: "Connect the systems you already run into one coherent layer.",
+    icon: Plug,
+  },
+  {
+    title: "Embedded senior teams",
+    description:
+      "Engineers who join your standups, learn your domain, and stay through delivery — not a rotating bench of contractors.",
+    icon: Users,
+    wide: true,
+    visual: <TeamVisual />,
   },
 ];
 
-export const Features = () => {
+const FeatureTile = ({ title, description, icon: Icon, wide, visual }: Feature) => {
+  const { ref, onMouseMove } = useSpotlight<HTMLDivElement>();
+
   return (
-    <section
-      className="mx-auto max-w-6xl px-6 py-16 sm:px-8 md:px-12 md:py-24 lg:px-16"
-      aria-labelledby="features-heading"
+    <motion.div
+      variants={staggerChild}
+      className={wide ? "lg:col-span-2" : undefined}
     >
-      <motion.h2
-        id="features-heading"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5 }}
-        className="text-3xl font-bold tracking-tight md:text-4xl"
+      <div
+        ref={ref}
+        onMouseMove={onMouseMove}
+        className="card spotlight-parent group relative h-full overflow-hidden p-6 sm:p-7"
       >
-        Features
-      </motion.h2>
-      <motion.p
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-        className="mt-2 text-slate-gray md:text-lg"
-      >
-        Built for scale, designed for resilience
-      </motion.p>
-      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 lg:gap-5">
-        {features.map((feature) => (
-          <FeatureTile
-            key={feature.title}
-            title={feature.title}
-            description={feature.description}
-            icon={feature.icon}
-            index={feature.index}
-            variant={feature.variant}
-          />
-        ))}
+        <div className="spotlight-field" aria-hidden />
+        {visual}
+
+        <div className="relative z-10 flex max-w-md flex-col">
+          <span className="flex size-11 items-center justify-center rounded-xl border border-line bg-gradient-to-br from-accent/20 to-transparent text-accent transition-all duration-500 group-hover:border-accent/40 group-hover:shadow-[0_0_26px_-8px_var(--glow)]">
+            <Icon className="size-5" aria-hidden />
+          </span>
+          <h3 className="mt-5 text-lg font-semibold tracking-tight">{title}</h3>
+          <p className="mt-2.5 text-sm leading-relaxed text-slate-gray">
+            {description}
+          </p>
+        </div>
       </div>
-    </section>
+    </motion.div>
   );
 };
+
+export const Features = () => (
+  <section
+    aria-labelledby="features-heading"
+    className="relative overflow-hidden py-24 md:py-32"
+  >
+    <div className="shell">
+      <SectionHeading
+        id="features-heading"
+        eyebrow="Why teams choose us"
+        title={
+          <>
+            Built for scale,{" "}
+            <span className="text-gradient">designed for resilience</span>
+          </>
+        }
+        description="The engineering standards we hold ourselves to on every engagement — no exceptions, no shortcuts."
+        align="center"
+      />
+
+      <motion.div
+        variants={staggerParent}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-60px" }}
+        className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3"
+      >
+        {features.map((feature) => (
+          <FeatureTile key={feature.title} {...feature} />
+        ))}
+      </motion.div>
+    </div>
+  </section>
+);

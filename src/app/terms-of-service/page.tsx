@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { LegalLayout } from "@/components/LegalLayout";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | TMS DigitalHub",
+  title: "Terms of Service",
   description:
     "Terms of Service for TMS DigitalHub. Read our terms and conditions for using our website and services.",
+  alternates: { canonical: "/terms-of-service" },
 };
 
 const LEGAL_SITE_URL = "https://www.tms-digitalhub.com";
@@ -76,46 +75,11 @@ const sections = [
 
 export default function TermsOfServicePage() {
   return (
-    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
-      <Header />
-
-      <main className="mx-auto max-w-4xl px-6 py-16 sm:px-8 md:px-12 lg:px-16">
-        <Link
-          href="/"
-          className="mb-8 inline-block text-sm text-slate-gray transition-colors hover:text-electric-blue"
-        >
-          ← Back to Home
-        </Link>
-
-        <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
-          Terms of Service
-        </h1>
-        <p className="mt-2 text-slate-gray">
-          Last Updated: March 3, 2026
-        </p>
-
-        <div className="mt-12 space-y-10">
-          {sections.map((section) => (
-            <section key={section.heading}>
-              <h2 className="text-xl font-semibold text-foreground">
-                {section.heading}
-              </h2>
-              <p className="mt-3 leading-relaxed text-slate-gray">
-                {section.content}
-              </p>
-            </section>
-          ))}
-        </div>
-
-        <Link
-          href="/"
-          className="mt-12 inline-block text-sm text-slate-gray transition-colors hover:text-electric-blue"
-        >
-          ← Back to Home
-        </Link>
-      </main>
-
-      <Footer />
-    </div>
+    <LegalLayout
+      title="Terms of Service"
+      updatedAt="March 3, 2026"
+      intro="These terms govern your use of our website and services. Project engagements are additionally covered by their own signed agreements."
+      sections={sections}
+    />
   );
 }

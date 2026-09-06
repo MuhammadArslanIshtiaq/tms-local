@@ -1,141 +1,126 @@
 "use client";
 
-import {
-  motion,
-  useMotionValue,
-  useSpring,
-  useMotionTemplate,
-} from "framer-motion";
-import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
-import { useRef, useState, useCallback } from "react";
+import { motion } from "framer-motion";
+import { ArrowUpRight } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { services } from "@/data/services";
+import { SectionHeading } from "./SectionHeading";
+import { useSpotlight } from "@/hooks/useSpotlight";
+import { staggerChild, staggerParent } from "./Reveal";
 
 type ServiceCardProps = {
   icon: LucideIcon;
   title: string;
   description: string;
   slug: string;
+  featured?: boolean;
 };
 
-const cardVariants = {
-  initial: { opacity: 0, y: 32 },
-  animate: { opacity: 1, y: 0 },
-};
-
-const ServiceCard = ({ icon: Icon, title, description, slug }: ServiceCardProps) => {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [isHovered, setIsHovered] = useState(false);
-
-  const mouseX = useMotionValue(50);
-  const mouseY = useMotionValue(50);
-
-  const springConfig = { damping: 25, stiffness: 200 };
-  const mouseXSpring = useSpring(mouseX, springConfig);
-  const mouseYSpring = useSpring(mouseY, springConfig);
-
-  const background = useMotionTemplate`radial-gradient(
-    140px circle at ${mouseXSpring}% ${mouseYSpring}%,
-    rgba(0, 112, 243, 0.4),
-    transparent 45%
-  )`;
-
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!cardRef.current) return;
-      const rect = cardRef.current.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-      mouseX.set(x);
-      mouseY.set(y);
-    },
-    [mouseX, mouseY]
-  );
-
-  const handleMouseLeave = useCallback(() => {
-    mouseX.set(50);
-    mouseY.set(50);
-    setIsHovered(false);
-  }, [mouseX, mouseY]);
-
-  const handleMouseEnter = useCallback(() => {
-    setIsHovered(true);
-  }, []);
+const ServiceCard = ({
+  icon: Icon,
+  title,
+  description,
+  slug,
+  featured = false,
+}: ServiceCardProps) => {
+  const { ref, onMouseMove } = useSpotlight<HTMLDivElement>();
 
   return (
-    <Link href={`/services/${slug}`} className="block focus:outline-none focus:ring-2 focus:ring-electric-blue focus:ring-offset-2 focus:ring-offset-background rounded-xl">
-      <motion.div
-        ref={cardRef}
-        variants={cardVariants}
-        onMouseMove={handleMouseMove}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        whileHover={{ y: -8 }}
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-        className="service-card relative rounded-xl border border-slate-gray/20 p-[1px] transition-colors"
-        style={{ background }}
-      >
-        <div className="relative z-10 h-full rounded-[11px] bg-charcoal/80 p-6 backdrop-blur-sm">
-          <motion.div
-            animate={isHovered ? { scale: 1.1, rotate: 5 } : { scale: 1, rotate: 0 }}
-            transition={{ type: "spring", stiffness: 400, damping: 15 }}
-            className="inline-flex"
-          >
-            <Icon className="size-11 text-electric-blue" aria-hidden />
-          </motion.div>
-          <h3 className="mt-5 text-xl font-semibold">{title}</h3>
-          <p className="mt-3 text-slate-gray">{description}</p>
-        </div>
-      </motion.div>
-    </Link>
-  );
-};
-
-const staggerContainer = {
-  animate: {
-    transition: {
-      staggerChildren: 0.12,
-      delayChildren: 0.1,
-    },
-  },
-};
-
-export const Services = () => {
-  return (
-    <motion.section
-      id="services"
-      initial="initial"
-      whileInView="animate"
-      viewport={{ once: true, margin: "-80px" }}
-      variants={staggerContainer}
-      className="mx-auto max-w-6xl px-6 pt-8 pb-24 sm:px-8 md:px-12 md:pt-12 lg:px-16 lg:pt-16"
-      aria-labelledby="services-heading"
+    <motion.div
+      variants={staggerChild}
+      className={featured ? "sm:col-span-2" : undefined}
     >
-      <motion.h2
-        variants={cardVariants}
-        id="services-heading"
-        className="text-3xl font-bold tracking-tight md:text-4xl"
+      <Link
+        href={`/services/${slug}`}
+        className="group block h-full rounded-[1.25rem]"
+        aria-label={`${title} — view service details`}
       >
-        Our Services
-      </motion.h2>
-      <motion.p
-        variants={cardVariants}
-        className="mt-2 max-w-2xl text-slate-gray md:text-lg"
+        <motion.div
+          ref={ref}
+          onMouseMove={onMouseMove}
+          whileHover={{ y: -6 }}
+          transition={{ type: "spring", stiffness: 320, damping: 26 }}
+          className="card halo spotlight-parent relative flex h-full flex-col overflow-hidden p-6 sm:p-7"
+        >
+          <div className="spotlight-field" aria-hidden />
+
+          <div className="relative z-10 flex items-start justify-between gap-4">
+            <span className="relative flex size-12 shrink-0 items-center justify-center rounded-xl border border-line bg-gradient-to-br from-accent/20 to-accent/5 text-accent transition-all duration-500 group-hover:border-accent/40 group-hover:shadow-[0_0_28px_-6px_var(--glow)]">
+              <Icon className="size-6" aria-hidden />
+            </span>
+            <ArrowUpRight
+              className="size-5 shrink-0 translate-y-1 text-slate-gray opacity-0 transition-all duration-400 group-hover:translate-y-0 group-hover:text-accent group-hover:opacity-100"
+              aria-hidden
+            />
+          </div>
+
+          <h3
+            className={`relative z-10 mt-6 font-semibold leading-snug tracking-tight transition-colors duration-300 group-hover:text-accent ${
+              featured ? "text-xl sm:text-2xl" : "text-lg"
+            }`}
+          >
+            {title}
+          </h3>
+          <p
+            className={`relative z-10 mt-3 text-sm leading-relaxed text-slate-gray ${
+              featured ? "max-w-xl sm:text-base" : ""
+            }`}
+          >
+            {description}
+          </p>
+
+          <span className="relative z-10 mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-accent opacity-0 transition-opacity duration-400 group-hover:opacity-100">
+            Learn more
+            <ArrowUpRight className="size-3.5" aria-hidden />
+          </span>
+        </motion.div>
+      </Link>
+    </motion.div>
+  );
+};
+
+export const Services = () => (
+  <section
+    id="services"
+    aria-labelledby="services-heading"
+    className="relative overflow-hidden py-24 md:py-32"
+  >
+    <div className="dot-field absolute inset-0 -z-10 opacity-70" aria-hidden />
+
+    <div className="shell">
+      <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+        <SectionHeading
+          id="services-heading"
+          eyebrow="What we do"
+          title={
+            <>
+              End-to-end capability,{" "}
+              <span className="text-gradient">one accountable partner</span>
+            </>
+          }
+          description="From first architecture sketch to 24/7 production support — every discipline you need to ship and run serious software."
+        />
+      </div>
+
+      <motion.div
+        variants={staggerParent}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-60px" }}
+        className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
       >
-        Comprehensive IT solutions designed to drive your business forward with
-        innovation and excellence
-      </motion.p>
-      <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {services.map((service) => (
+        {services.map((service, index) => (
           <ServiceCard
             key={service.slug}
             icon={service.icon}
             title={service.title}
             description={service.shortDescription}
             slug={service.slug}
+            featured={index === 0}
           />
         ))}
-      </div>
-    </motion.section>
-  );
-};
+      </motion.div>
+    </div>
+  </section>
+);

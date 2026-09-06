@@ -1,7 +1,7 @@
 "use client";
 
-import { motion, useMotionValue, useSpring } from "framer-motion";
-import { useRef, useCallback, type ReactNode } from "react";
+import { motion, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
+import { useCallback, useRef, type ReactNode } from "react";
 
 type MagneticProps = {
   children: ReactNode;
@@ -9,43 +9,39 @@ type MagneticProps = {
   className?: string;
 };
 
-const SPRING_STIFFNESS = 150;
-const SPRING_DAMPING = 15;
-
+/**
+ * Pulls its child slightly toward the cursor. Disabled for coarse pointers
+ * and when the visitor prefers reduced motion.
+ */
 export const Magnetic = ({
   children,
-  strength = 0.2,
+  strength = 0.22,
   className,
 }: MagneticProps) => {
   const ref = useRef<HTMLDivElement>(null);
+  const reduceMotion = useReducedMotion();
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
-  const xSpring = useSpring(x, {
-    stiffness: SPRING_STIFFNESS,
-    damping: SPRING_DAMPING,
-  });
-  const ySpring = useSpring(y, {
-    stiffness: SPRING_STIFFNESS,
-    damping: SPRING_DAMPING,
-  });
+  const springConfig = { stiffness: 170, damping: 16, mass: 0.35 };
+  const xSpring = useSpring(x, springConfig);
+  const ySpring = useSpring(y, springConfig);
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!ref.current) return;
-      const rect = ref.current.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      const distanceX = (e.clientX - centerX) * strength;
-      const distanceY = (e.clientY - centerY) * strength;
-      x.set(distanceX);
-      y.set(distanceY);
+      const node = ref.current;
+      if (!node || reduceMotion) return;
+      if (!window.matchMedia("(pointer: fine)").matches) return;
+
+      const rect = node.getBoundingClientRect();
+      x.set((e.clientX - (rect.left + rect.width / 2)) * strength);
+      y.set((e.clientY - (rect.top + rect.height / 2)) * strength);
     },
-    [x, y, strength]
+    [x, y, strength, reduceMotion]
   );
 
-  const handleMouseLeave = useCallback(() => {
+  const reset = useCallback(() => {
     x.set(0);
     y.set(0);
   }, [x, y]);
@@ -54,11 +50,8 @@ export const Magnetic = ({
     <motion.div
       ref={ref}
       onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{
-        x: xSpring,
-        y: ySpring,
-      }}
+      onMouseLeave={reset}
+      style={reduceMotion ? undefined : { x: xSpring, y: ySpring }}
       className={className}
     >
       {children}

@@ -1,153 +1,201 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Send } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowRight, CheckCircle2, Loader2, Send } from "lucide-react";
+import { Field } from "./Field";
+import {
+  CONTACT_EMAIL,
+  submitContact,
+  validateContact,
+  type FieldErrors,
+} from "@/lib/contact";
 
 type ServiceContactFormProps = {
   serviceName: string;
 };
 
-export const ServiceContactForm = ({ serviceName }: ServiceContactFormProps) => {
-  const [formState, setFormState] = useState({
-    name: "",
-    email: "",
-    company: "",
-    message: "",
-  });
-  const [isSubmitted, setIsSubmitted] = useState(false);
+const EMPTY = { name: "", email: "", company: "", message: "" };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Form submission logic - integrate with your backend/email service
-    setIsSubmitted(true);
-    setFormState({ name: "", email: "", company: "", message: "" });
-  };
+type Status = "idle" | "submitting" | "success" | "error";
+
+export const ServiceContactForm = ({ serviceName }: ServiceContactFormProps) => {
+  const [form, setForm] = useState(EMPTY);
+  const [errors, setErrors] = useState<FieldErrors>({});
+  const [status, setStatus] = useState<Status>("idle");
 
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setFormState((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
-  if (isSubmitted) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="rounded-xl border border-electric-blue/30 bg-electric-blue/10 p-8 text-center"
-      >
-        <p className="text-lg font-medium text-foreground">
-          Thank you for your interest in {serviceName}.
-        </p>
-        <p className="mt-2 text-slate-gray">
-          We&apos;ll get back to you within 1–2 business days.
-        </p>
-        <button
-          type="button"
-          onClick={() => setIsSubmitted(false)}
-          className="mt-6 text-sm font-medium text-electric-blue transition-colors hover:underline focus:outline-none focus:ring-2 focus:ring-electric-blue focus:ring-offset-2 focus:ring-offset-background"
-        >
-          Send another inquiry
-        </button>
-      </motion.div>
-    );
-  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const validationErrors = validateContact(form);
+    setErrors(validationErrors);
+    if (Object.keys(validationErrors).length > 0) return;
+
+    setStatus("submitting");
+    try {
+      await submitContact({ ...form, service: serviceName });
+      setStatus("success");
+      setForm(EMPTY);
+    } catch {
+      setStatus("error");
+    }
+  };
 
   return (
-    <motion.form
-      onSubmit={handleSubmit}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-5 rounded-xl border border-slate-gray/20 bg-charcoal/40 p-6 backdrop-blur-sm sm:p-8"
-    >
-      <h3 className="text-xl font-semibold">Request a Consultation</h3>
-      <p className="text-sm text-slate-gray">
-        Tell us about your project. We&apos;ll respond within 1–2 business days.
-      </p>
+    <div className="card relative overflow-hidden p-6 sm:p-7">
+      <AnimatePresence mode="wait">
+        {status === "success" ? (
+          <motion.div
+            key="success"
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.96 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col items-center py-8 text-center"
+          >
+            <motion.span
+              initial={{ scale: 0, rotate: -30 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 260, damping: 16, delay: 0.1 }}
+              className="flex size-14 items-center justify-center rounded-2xl border border-accent/30 bg-accent/10 text-accent"
+            >
+              <CheckCircle2 className="size-7" aria-hidden />
+            </motion.span>
+            <h3 className="mt-5 text-lg font-semibold tracking-tight">
+              Thanks for your interest
+            </h3>
+            <p className="mt-2 text-sm text-slate-gray">
+              We&apos;ve got your enquiry about {serviceName} and will reply
+              within 1–2 business days.
+            </p>
+            <button
+              type="button"
+              onClick={() => setStatus("idle")}
+              className="btn btn-ghost mt-6 px-5 py-2.5 text-sm"
+            >
+              Send another enquiry
+            </button>
+          </motion.div>
+        ) : (
+          <motion.form
+            key="form"
+            onSubmit={handleSubmit}
+            noValidate
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="space-y-5"
+          >
+            <div>
+              <span className="eyebrow">Let&apos;s talk</span>
+              <h2 className="mt-2 text-xl font-semibold tracking-tight">
+                Request a consultation
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-slate-gray">
+                Tell us about your project. We&apos;ll respond within 1–2
+                business days.
+              </p>
+            </div>
 
-      <input type="hidden" name="service" value={serviceName} readOnly />
+            <Field id="service-name" label="Your name" error={errors.name}>
+              <input
+                id="service-name"
+                name="name"
+                type="text"
+                autoComplete="name"
+                value={form.name}
+                onChange={handleChange}
+                className="field"
+                placeholder="Jane Doe"
+                aria-invalid={Boolean(errors.name)}
+              />
+            </Field>
 
-      <div>
-        <label
-          htmlFor="service-name"
-          className="mb-2 block text-sm font-medium text-foreground"
-        >
-          Your Name
-        </label>
-        <input
-          id="service-name"
-          name="name"
-          type="text"
-          required
-          value={formState.name}
-          onChange={handleChange}
-          className="w-full rounded-lg border border-slate-gray/30 bg-charcoal/80 px-4 py-3 text-foreground placeholder:text-slate-gray focus:border-electric-blue focus:outline-none focus:ring-1 focus:ring-electric-blue"
-          placeholder="John Doe"
-        />
-      </div>
-      <div>
-        <label
-          htmlFor="service-email"
-          className="mb-2 block text-sm font-medium text-foreground"
-        >
-          Your Email
-        </label>
-        <input
-          id="service-email"
-          name="email"
-          type="email"
-          required
-          value={formState.email}
-          onChange={handleChange}
-          className="w-full rounded-lg border border-slate-gray/30 bg-charcoal/80 px-4 py-3 text-foreground placeholder:text-slate-gray focus:border-electric-blue focus:outline-none focus:ring-1 focus:ring-electric-blue"
-          placeholder="john@company.com"
-        />
-      </div>
-      <div>
-        <label
-          htmlFor="service-company"
-          className="mb-2 block text-sm font-medium text-foreground"
-        >
-          Company (Optional)
-        </label>
-        <input
-          id="service-company"
-          name="company"
-          type="text"
-          value={formState.company}
-          onChange={handleChange}
-          className="w-full rounded-lg border border-slate-gray/30 bg-charcoal/80 px-4 py-3 text-foreground placeholder:text-slate-gray focus:border-electric-blue focus:outline-none focus:ring-1 focus:ring-electric-blue"
-          placeholder="Your Company"
-        />
-      </div>
-      <div>
-        <label
-          htmlFor="service-message"
-          className="mb-2 block text-sm font-medium text-foreground"
-        >
-          Your Message
-        </label>
-        <textarea
-          id="service-message"
-          name="message"
-          rows={4}
-          required
-          value={formState.message}
-          onChange={handleChange}
-          className="w-full resize-none rounded-lg border border-slate-gray/30 bg-charcoal/80 px-4 py-3 text-foreground placeholder:text-slate-gray focus:border-electric-blue focus:outline-none focus:ring-1 focus:ring-electric-blue"
-          placeholder="Tell us about your project and how we can help..."
-        />
-      </div>
-      <button
-        type="submit"
-        className="hero-primary-btn flex w-full items-center justify-center gap-2 rounded-xl bg-electric-blue px-6 py-4 font-medium text-white transition-all duration-300 hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-electric-blue focus:ring-offset-2 focus:ring-offset-charcoal"
-      >
-        <Send className="size-4" aria-hidden />
-        Send Inquiry
-      </button>
-    </motion.form>
+            <Field id="service-email" label="Work email" error={errors.email}>
+              <input
+                id="service-email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                value={form.email}
+                onChange={handleChange}
+                className="field"
+                placeholder="jane@company.com"
+                aria-invalid={Boolean(errors.email)}
+              />
+            </Field>
+
+            <Field id="service-company" label="Company" optional>
+              <input
+                id="service-company"
+                name="company"
+                type="text"
+                autoComplete="organization"
+                value={form.company}
+                onChange={handleChange}
+                className="field"
+                placeholder="Acme Corp"
+              />
+            </Field>
+
+            <Field id="service-message" label="Your message" error={errors.message}>
+              <textarea
+                id="service-message"
+                name="message"
+                rows={4}
+                value={form.message}
+                onChange={handleChange}
+                className="field resize-none"
+                placeholder="What are you trying to build or fix?"
+                aria-invalid={Boolean(errors.message)}
+              />
+            </Field>
+
+            {status === "error" ? (
+              <p
+                role="alert"
+                className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400"
+              >
+                Something went wrong. Email us at{" "}
+                <a href={`mailto:${CONTACT_EMAIL}`} className="underline">
+                  {CONTACT_EMAIL}
+                </a>
+                .
+              </p>
+            ) : null}
+
+            <button
+              type="submit"
+              disabled={status === "submitting"}
+              className="btn btn-primary group w-full px-6 py-3.5 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {status === "submitting" ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" aria-hidden />
+                  Sending…
+                </>
+              ) : (
+                <>
+                  <Send className="size-4" aria-hidden />
+                  Send enquiry
+                  <ArrowRight
+                    className="size-4 transition-transform duration-300 group-hover:translate-x-1"
+                    aria-hidden
+                  />
+                </>
+              )}
+            </button>
+          </motion.form>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };

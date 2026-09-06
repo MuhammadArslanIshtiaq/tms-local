@@ -6,70 +6,58 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@radix-ui/react-accordion";
-import { motion, useInView, animate } from "framer-motion";
-import { type LucideIcon, DollarSign, Zap, ThumbsUp, Headphones } from "lucide-react";
-import { useRef, useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import Link from "next/link";
+import {
+  DollarSign,
+  Headphones,
+  Plus,
+  ThumbsUp,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
+import { CountUp } from "./CountUp";
+import { Reveal, RevealGroup, RevealItem } from "./Reveal";
+import { useSpotlight } from "@/hooks/useSpotlight";
 
-const statIcons: LucideIcon[] = [DollarSign, Zap, ThumbsUp, Headphones];
-
-const stats = [
-  { value: 40, suffix: "%", label: "Cost Reduction", decimals: 0 },
-  { value: 2, suffix: "x", label: "Faster Deployment", decimals: 0 },
-  { value: 98, suffix: "%", label: "Client Satisfaction", decimals: 0 },
-  { value: 24, suffix: "/7", label: "Support", decimals: 0 },
-];
-
-const StatCard = ({
-  value,
-  suffix,
-  label,
-  decimals = 0,
-  icon: Icon,
-}: {
+type Result = {
   value: number;
   suffix: string;
   label: string;
-  decimals?: number;
+  caption: string;
   icon: LucideIcon;
-}) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-30px" });
-  const [displayValue, setDisplayValue] = useState(0);
-
-  useEffect(() => {
-    if (!isInView) return;
-    const controls = animate(0, value, {
-      duration: 1.8,
-      ease: "easeOut",
-      onUpdate: (v) => setDisplayValue(v),
-    });
-    return () => controls.stop();
-  }, [isInView, value]);
-
-  const formatted =
-    decimals > 0 ? displayValue.toFixed(decimals) : Math.round(displayValue).toString();
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 16 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.4 }}
-      className="group flex items-center gap-4 rounded-xl border border-slate-gray/20 bg-charcoal/50 p-4 transition-colors hover:border-electric-blue/50 sm:p-5"
-    >
-      <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-electric-blue/10 text-electric-blue transition-colors group-hover:bg-electric-blue/20">
-        <Icon className="size-6" aria-hidden />
-      </div>
-      <div className="min-w-0">
-        <span className="block text-2xl font-bold text-electric-blue sm:text-3xl">
-          {formatted}
-          {suffix}
-        </span>
-        <span className="block text-sm text-slate-gray">{label}</span>
-      </div>
-    </motion.div>
-  );
 };
+
+const results: Result[] = [
+  {
+    value: 40,
+    suffix: "%",
+    label: "Cost reduction",
+    caption: "Average infrastructure saving post-migration",
+    icon: DollarSign,
+  },
+  {
+    value: 2,
+    suffix: "×",
+    label: "Faster deployment",
+    caption: "Release frequency after CI/CD rollout",
+    icon: Zap,
+  },
+  {
+    value: 98,
+    suffix: "%",
+    label: "Client satisfaction",
+    caption: "Post-engagement survey score",
+    icon: ThumbsUp,
+  },
+  {
+    value: 24,
+    suffix: "/7",
+    label: "Support coverage",
+    caption: "SLA-backed incident response",
+    icon: Headphones,
+  },
+];
 
 const faqItems = [
   {
@@ -80,90 +68,132 @@ const faqItems = [
   {
     question: "What is your typical project timeline?",
     answer:
-      "Project timelines vary based on scope, but most engagements range from 8–16 weeks for standard implementations. We use an agile methodology with 2-week sprints, allowing for iterative delivery and early value. A detailed timeline is provided after our initial discovery phase.",
+      "Timelines vary with scope, but most engagements run 8–16 weeks. We work in two-week sprints so you get working software continuously rather than at a single hand-off. A detailed, costed timeline follows the discovery phase.",
+  },
+  {
+    question: "Who owns the code you write?",
+    answer:
+      "You do — completely. All intellectual property, source code, infrastructure definitions, and documentation transfer to you. There are no proprietary runtimes or licences that lock you into working with us afterwards.",
   },
   {
     question: "Do you offer post-launch support?",
     answer:
-      "Yes. We offer tiered support packages including bug fixes, performance monitoring, and feature enhancements. All projects include a 30-day warranty period. Extended support contracts are available for ongoing maintenance, updates, and 24/7 incident response.",
+      "Yes. Every project includes a 30-day warranty. Beyond that we offer tiered support covering bug fixes, performance monitoring, feature work, and 24/7 incident response, scaled to your risk profile.",
+  },
+  {
+    question: "Can you work with our existing in-house team?",
+    answer:
+      "That's often the best outcome. Our engineers embed into your standups, code reviews, and tooling, and we build in knowledge transfer from day one so your team can run the system confidently once we step back.",
+  },
+  {
+    question: "How does pricing work?",
+    answer:
+      "Discovery is a fixed fee. From there we offer either fixed-scope pricing for well-defined deliverables or a monthly retainer for ongoing product work. No hidden change-request fees — scope changes are agreed and priced before work starts.",
   },
 ];
 
-export const ClientResultsFaq = () => {
-  return (
-    <section
-      className="mx-auto max-w-6xl px-6 py-16 sm:px-8 md:px-12 md:py-24 lg:px-16"
-      aria-labelledby="client-results-heading"
-    >
-      <div className="grid gap-16 lg:grid-cols-2 lg:gap-20">
-        {/* Left: Client Results */}
-        <div>
-          <h2
-            id="client-results-heading"
-            className="mb-2 text-2xl font-bold tracking-tight md:text-3xl"
-          >
-            Client Results
-          </h2>
-          <p className="mb-8 text-slate-gray">
-            Proven outcomes that speak for themselves
-          </p>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {stats.map((stat, i) => (
-              <StatCard
-                key={stat.label}
-                value={stat.value}
-                suffix={stat.suffix}
-                label={stat.label}
-                decimals={stat.decimals}
-                icon={statIcons[i]}
-              />
-            ))}
-          </div>
-        </div>
+const ResultCard = ({ result }: { result: Result }) => {
+  const { ref, onMouseMove } = useSpotlight<HTMLDivElement>();
+  const Icon = result.icon;
 
-        {/* Right: FAQ Accordion */}
-        <div>
-          <h2 className="mb-2 text-2xl font-bold tracking-tight md:text-3xl">
-            Frequently Asked Questions
-          </h2>
-          <p className="mb-8 text-slate-gray">
-            Quick answers to common questions
-          </p>
-          <Accordion type="single" collapsible className="w-full">
-            {faqItems.map((item, index) => (
-              <AccordionItem
-                key={item.question}
-                value={`item-${index}`}
-                className="border-b border-slate-gray/20 last:border-b-0"
-              >
-                <AccordionTrigger className="group flex w-full items-center justify-between py-4 text-left text-base font-medium text-foreground transition-colors hover:text-electric-blue [&[data-state=open]]:text-electric-blue">
-                  {item.question}
-                  <span className="ml-2 flex size-7 shrink-0 items-center justify-center rounded-full bg-slate-gray/15 text-slate-gray transition-all duration-200 group-hover:bg-electric-blue/15 group-hover:text-electric-blue [&[data-state=open]]:rotate-180 [&[data-state=open]]:bg-electric-blue/15 [&[data-state=open]]:text-electric-blue">
-                    <svg
-                      width="10"
-                      height="10"
-                      viewBox="0 0 12 12"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden
-                    >
-                      <path d="M3 4.5L6 7.5L9 4.5" />
-                    </svg>
-                  </span>
-                </AccordionTrigger>
-                <AccordionContent className="accordion-content overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
-                  <p className="pb-4 pr-10 text-sm leading-relaxed text-slate-gray">
-                    {item.answer}
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
+  return (
+    <div
+      ref={ref}
+      onMouseMove={onMouseMove}
+      className="card spotlight-parent group relative overflow-hidden p-5 sm:p-6"
+    >
+      <div className="spotlight-field" aria-hidden />
+      <div className="relative z-10">
+        <span className="flex size-11 items-center justify-center rounded-xl border border-line bg-gradient-to-br from-accent/20 to-transparent text-accent transition-all duration-500 group-hover:border-accent/40 group-hover:shadow-[0_0_26px_-8px_var(--glow)]">
+          <Icon className="size-5" aria-hidden />
+        </span>
+        <CountUp
+          value={result.value}
+          suffix={result.suffix}
+          className="mt-5 block font-display text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl"
+        />
+        <p className="mt-1 text-sm font-semibold text-accent">{result.label}</p>
+        <p className="mt-1.5 text-xs leading-relaxed text-slate-gray">
+          {result.caption}
+        </p>
       </div>
-    </section>
+    </div>
   );
 };
+
+export const ClientResultsFaq = () => (
+  <section
+    aria-labelledby="results-heading"
+    className="relative overflow-hidden py-24 md:py-32"
+  >
+    <div className="shell">
+      <div className="grid gap-16 lg:grid-cols-2 lg:gap-20">
+        {/* ---------- Results ---------- */}
+        <div>
+          <Reveal>
+            <span className="eyebrow">Outcomes</span>
+            <h2
+              id="results-heading"
+              className="mt-4 text-3xl font-bold leading-[1.1] tracking-tight sm:text-4xl"
+            >
+              Numbers our clients{" "}
+              <span className="text-gradient">actually report</span>
+            </h2>
+            <p className="mt-4 text-slate-gray">
+              Aggregated across engagements delivered in the last 24 months.
+            </p>
+          </Reveal>
+
+          <RevealGroup className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
+            {results.map((result) => (
+              <RevealItem key={result.label}>
+                <ResultCard result={result} />
+              </RevealItem>
+            ))}
+          </RevealGroup>
+        </div>
+
+        {/* ---------- FAQ ---------- */}
+        <div>
+          <Reveal>
+            <span className="eyebrow">Answers</span>
+            <h2 className="mt-4 text-3xl font-bold leading-[1.1] tracking-tight sm:text-4xl">
+              Frequently asked questions
+            </h2>
+            <p className="mt-4 text-slate-gray">
+              Still unsure about something?{" "}
+              <Link href="/#contact" className="link-underline text-foreground">
+                Ask us directly
+              </Link>
+              .
+            </p>
+          </Reveal>
+
+          <Reveal delay={0.1} className="mt-10">
+            <Accordion type="single" collapsible className="w-full">
+              {faqItems.map((item, index) => (
+                <AccordionItem
+                  key={item.question}
+                  value={`item-${index}`}
+                  className="group border-b border-line"
+                >
+                  <AccordionTrigger className="flex w-full items-center justify-between gap-4 py-5 text-left text-base font-medium text-foreground transition-colors duration-300 hover:text-accent data-[state=open]:text-accent">
+                    <span>{item.question}</span>
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-slate-gray transition-all duration-300 group-hover:border-accent/40 group-hover:text-accent group-data-[state=open]:rotate-45 group-data-[state=open]:border-accent/40 group-data-[state=open]:bg-accent/10 group-data-[state=open]:text-accent">
+                      <Plus className="size-4" aria-hidden />
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+                    <motion.p className="pb-5 pr-12 text-sm leading-relaxed text-slate-gray">
+                      {item.answer}
+                    </motion.p>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </Reveal>
+        </div>
+      </div>
+    </div>
+  </section>
+);
