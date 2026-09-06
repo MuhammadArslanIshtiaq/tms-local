@@ -76,7 +76,7 @@ export async function POST(request: Request) {
     if (error) {
       console.error("[contact] Resend rejected the message:", error);
       return NextResponse.json(
-        { error: "We couldn't send your message. Please email us directly." },
+        { error: describeSendError(error) },
         { status: 502 }
       );
     }
@@ -90,3 +90,29 @@ export async function POST(request: Request) {
     );
   }
 }
+
+/**
+ * Resend's rejection reasons are configuration guidance rather than
+ * sensitive data, so pass them through — otherwise a misconfigured sender
+ * looks identical to an outage and can only be diagnosed from server logs.
+ */
+const describeSendError = (error: { name?: string; message?: string }) => {
+  const message = error?.message ?? "";
+
+  if (/not verified|domain is not/i.test(message)) {
+    return "The sending domain isn't verified in Resend yet. Verify it, then check CONTACT_FROM_EMAIL uses that domain.";
+  }
+  if (/testing emails|own email address|verify a domain/i.test(message)) {
+    return "Resend is in testing mode and will only deliver to your own account address. Verify a domain to send to anyone else.";
+  }
+  if (/API key|unauthorized|invalid.*key/i.test(message)) {
+    return "The Resend API key was rejected. Check RESEND_API_KEY is correct and has send permission.";
+  }
+  if (/from|sender/i.test(message)) {
+    return `Resend rejected the sender address: ${message}`;
+  }
+
+  return message
+    ? `Couldn't send your message: ${message}`
+    : "We couldn't send your message. Please email us directly.";
+};
