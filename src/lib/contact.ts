@@ -6,7 +6,7 @@ export type ContactPayload = {
   message: string;
 };
 
-export const CONTACT_EMAIL = "hello@tmsdigitalhub.com";
+export const CONTACT_EMAIL = "hello@tms-digitalhub.com";
 
 /**
  * Sends the enquiry to the server, which emails it to CONTACT_EMAIL.

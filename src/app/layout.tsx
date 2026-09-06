@@ -29,7 +29,8 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
-const SITE_URL = "https://tmsdigitalhub.com";
+/* Canonical host — the apex redirects here, so metadata must match. */
+const SITE_URL = "https://www.tms-digitalhub.com";
 const TITLE = "TMS DigitalHub — Digital Solutions, Crafted to Perfection";
 const DESCRIPTION =
   "Custom software development, cloud architecture, and IT infrastructure for government, enterprise, and scale-up teams worldwide.";
@@ -82,7 +83,7 @@ const organizationSchema = {
   name: "TMS DigitalHub",
   url: SITE_URL,
   description: DESCRIPTION,
-  email: "hello@tmsdigitalhub.com",
+  email: "hello@tms-digitalhub.com",
   address: {
     "@type": "PostalAddress",
     streetAddress: "1001 S Main St STE 500",

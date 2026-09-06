@@ -37,7 +37,7 @@ const sections = [
   },
   {
     heading: "Your Rights",
-    content: `Depending on your location, you may have rights to access, correct, delete, or restrict processing of your personal data. You may also have the right to data portability and to withdraw consent. To exercise these rights, contact us at hello@tmsdigitalhub.com.`,
+    content: `Depending on your location, you may have rights to access, correct, delete, or restrict processing of your personal data. You may also have the right to data portability and to withdraw consent. To exercise these rights, contact us at hello@tms-digitalhub.com.`,
   },
   {
     heading: "Cookies and Tracking",
@@ -61,7 +61,7 @@ const sections = [
   },
   {
     heading: "Contact Us",
-    content: `If you have questions about this Privacy Policy or our data practices, please contact us at hello@tmsdigitalhub.com or at our office: 1001 S Main St STE 500, Kalispell MT 59901, USA.`,
+    content: `If you have questions about this Privacy Policy or our data practices, please contact us at hello@tms-digitalhub.com or at our office: 1001 S Main St STE 500, Kalispell MT 59901, USA.`,
   },
 ];
 

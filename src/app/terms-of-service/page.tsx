@@ -69,7 +69,7 @@ const sections = [
   },
   {
     heading: "Contact",
-    content: `For questions about these Terms of Service, please contact us at hello@tmsdigitalhub.com or at our office: 1001 S Main St STE 500, Kalispell MT 59901, USA.`,
+    content: `For questions about these Terms of Service, please contact us at hello@tms-digitalhub.com or at our office: 1001 S Main St STE 500, Kalispell MT 59901, USA.`,
   },
 ];
 
