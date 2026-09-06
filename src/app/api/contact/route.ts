@@ -48,9 +48,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const to = process.env.CONTACT_TO_EMAIL || CONTACT_EMAIL;
+  const to = readAddress(process.env.CONTACT_TO_EMAIL) ?? CONTACT_EMAIL;
   const from =
-    process.env.CONTACT_FROM_EMAIL || "TMS Website <onboarding@resend.dev>";
+    readAddress(process.env.CONTACT_FROM_EMAIL) ??
+    "TMS Website <onboarding@resend.dev>";
 
   try {
     const resend = new Resend(apiKey);
@@ -90,6 +91,50 @@ export async function POST(request: Request) {
     );
   }
 }
+
+/**
+ * Normalises an address from an environment variable.
+ *
+ * Values pasted into a hosting dashboard often arrive wrapped in quotes or
+ * padded with whitespace or a stray newline, none of which Resend accepts.
+ * Returns null when the value is missing or unusable so the caller falls
+ * back to a known-good default rather than failing the send.
+ */
+const readAddress = (raw: string | undefined): string | null => {
+  if (!raw) return null;
+
+  let cleaned = raw.replace(/\s+/g, " ").trim();
+
+  /* Strip wrapping quotes, which dashboards often keep from a pasted value. */
+  while (
+    cleaned.length > 1 &&
+    ((cleaned.startsWith('"') && cleaned.endsWith('"')) ||
+      (cleaned.startsWith("'") && cleaned.endsWith("'")))
+  ) {
+    cleaned = cleaned.slice(1, -1).trim();
+  }
+
+  /* `<addr>` with no display name is valid RFC but Resend wants it bare. */
+  const bare = cleaned.match(/^<\s*([^<>]+?)\s*>$/);
+  if (bare) cleaned = bare[1];
+
+  if (!cleaned) return null;
+
+  /* Accept `email@example.com` and `Name <email@example.com>`. */
+  const plain = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]{2,}$/;
+  const named = /^[^<>]+<\s*([^\s@<>]+@[^\s@<>]+\.[^\s@<>]{2,})\s*>$/;
+
+  if (plain.test(cleaned)) return cleaned;
+
+  const match = cleaned.match(named);
+  if (match) {
+    const name = cleaned.slice(0, cleaned.indexOf("<")).trim();
+    return `${name} <${match[1]}>`;
+  }
+
+  console.error(`[contact] Ignoring malformed address: ${JSON.stringify(raw)}`);
+  return null;
+};
 
 /**
  * Resend's rejection reasons are configuration guidance rather than
