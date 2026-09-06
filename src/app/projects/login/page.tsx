@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { KanbanSquare } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { LoginForm } from "./LoginForm";
@@ -10,7 +9,14 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function LoginPage() {
+type Props = {
+  searchParams: Promise<{ next?: string | string[] }>;
+};
+
+export default async function LoginPage({ searchParams }: Props) {
+  const { next } = await searchParams;
+  const redirectTo = Array.isArray(next) ? next[0] : next;
+
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-5 py-12">
       <div className="grain absolute inset-0 -z-10" aria-hidden>
@@ -35,11 +41,7 @@ export default function LoginPage() {
         </div>
 
         <div className="card p-6 sm:p-7">
-          <Suspense
-            fallback={<div className="h-72 animate-pulse rounded-lg bg-surface" />}
-          >
-            <LoginForm />
-          </Suspense>
+          <LoginForm next={redirectTo ?? ""} />
         </div>
       </div>
     </main>

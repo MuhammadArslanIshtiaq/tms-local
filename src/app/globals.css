@@ -610,37 +610,42 @@ p {
    Forms
    ========================================================================== */
 
-.field {
-  width: 100%;
-  border-radius: 0.75rem;
-  border: 1px solid var(--line);
-  background: color-mix(in srgb, var(--surface-solid) 55%, transparent);
-  padding: 0.8rem 1rem;
-  color: var(--foreground);
-  font-size: 0.95rem;
-  transition: border-color 0.25s ease, box-shadow 0.25s ease,
-    background-color 0.25s ease;
-}
+/* In @layer components so Tailwind utilities (which live in the later
+   `utilities` layer) can override these — e.g. `pl-10` for a leading icon.
+   Unlayered rules would otherwise win regardless of specificity. */
+@layer components {
+  .field {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, var(--surface-solid) 55%, transparent);
+    padding: 0.8rem 1rem;
+    color: var(--foreground);
+    font-size: 0.95rem;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease,
+      background-color 0.25s ease;
+  }
 
-.field::placeholder {
-  color: color-mix(in srgb, var(--slate-gray) 80%, transparent);
-}
+  .field::placeholder {
+    color: color-mix(in srgb, var(--slate-gray) 80%, transparent);
+  }
 
-.field:focus {
-  outline: none;
-  border-color: var(--accent);
-  background: color-mix(in srgb, var(--surface-solid) 80%, transparent);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 16%, transparent);
-}
+  .field:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--surface-solid) 80%, transparent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 16%, transparent);
+  }
 
-.field:user-invalid {
-  border-color: #f0616d;
-  box-shadow: 0 0 0 4px rgba(240, 97, 109, 0.14);
-}
+  .field:user-invalid {
+    border-color: #f0616d;
+    box-shadow: 0 0 0 4px rgba(240, 97, 109, 0.14);
+  }
 
-select.field option {
-  background: var(--surface-solid);
-  color: var(--foreground);
+  select.field option {
+    background: var(--surface-solid);
+    color: var(--foreground);
+  }
 }
 
 /* ==========================================================================

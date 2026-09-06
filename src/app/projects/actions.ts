@@ -56,23 +56,84 @@ export async function loginAction(
     return { error: "Enter your email and password." };
   }
 
-  const user = await db.findUserByEmail(email);
-  if (!user || !(await verifyPassword(password, user.password_hash))) {
-    return { error: "That email and password combination isn't right." };
-  }
+  let token: string;
 
-  const token = await signSession({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role === "admin" ? "admin" : "member",
-  });
+  /* Configuration problems (missing env vars, unreachable database) would
+     otherwise surface as an opaque 500. Report them instead. */
+  try {
+    const user = await db.findUserByEmail(email);
+    if (!user || !(await verifyPassword(password, user.password_hash))) {
+      return { error: "That email and password combination isn't right." };
+    }
+
+    token = await signSession({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role === "admin" ? "admin" : "member",
+    });
+  } catch (cause) {
+    console.error("[pm] login failed:", cause);
+    return { error: describeSetupError(cause) };
+  }
 
   const store = await cookies();
   store.set(SESSION_COOKIE, token, sessionCookieOptions);
 
+  /* Outside the try: redirect() signals by throwing. */
   redirect(next && next.startsWith("/projects") ? next : "/projects");
 }
+
+/** Turns an infrastructure error into something actionable for an admin. */
+const describeSetupError = (cause: unknown): string => {
+  /* Connection failures surface as an AggregateError with an empty message
+     and the reason on `code`, so inspect both plus any nested errors. */
+  const parts: string[] = [];
+  const visit = (value: unknown, depth = 0) => {
+    if (!value || depth > 3) return;
+    if (value instanceof Error) {
+      parts.push(value.message);
+      const code = (value as NodeJS.ErrnoException).code;
+      if (code) parts.push(code);
+      if ("errors" in value && Array.isArray(value.errors)) {
+        value.errors.forEach((nested) => visit(nested, depth + 1));
+      }
+      if (value.cause) visit(value.cause, depth + 1);
+      return;
+    }
+    parts.push(String(value));
+  };
+  visit(cause);
+  const text = parts.join(" | ");
+
+  if (text.includes("PM_SESSION_SECRET")) {
+    return "Server not configured: PM_SESSION_SECRET is missing or shorter than 16 characters. Add it in your hosting environment variables and redeploy.";
+  }
+  if (text.includes("DATABASE_URL")) {
+    return "Server not configured: DATABASE_URL is missing. Add it in your hosting environment variables and redeploy.";
+  }
+  if (
+    text.includes("ENOTFOUND") ||
+    text.includes("ECONNREFUSED") ||
+    text.includes("ETIMEDOUT") ||
+    text.includes("EAI_AGAIN")
+  ) {
+    return "Can't reach the database. Check DATABASE_URL points at your pooled connection string and that the database is running.";
+  }
+  if (
+    text.includes("password authentication") ||
+    text.includes("SASL") ||
+    text.includes("role") ||
+    text.includes("does not exist")
+  ) {
+    return "The database rejected these credentials. Re-copy the connection string from your database provider.";
+  }
+  if (text.includes("SSL") || text.includes("self signed") || text.includes("certificate")) {
+    return "The database refused the TLS connection. Make sure the connection string ends with ?sslmode=require.";
+  }
+
+  return "Something went wrong signing in. Check the server logs for details.";
+};
 
 export async function logoutAction() {
   const store = await cookies();

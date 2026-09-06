@@ -1,17 +1,24 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { AlertCircle, ArrowRight, Loader2, Lock, Mail } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowRight,
+  Eye,
+  EyeOff,
+  Loader2,
+  Lock,
+  Mail,
+} from "lucide-react";
 import { loginAction, type ActionState } from "../actions";
 
 const initialState: ActionState = {};
 
-export const LoginForm = () => {
-  const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "";
+/** `next` is resolved on the server, so this needs no Suspense boundary. */
+export const LoginForm = ({ next }: { next: string }) => {
   const [state, formAction, pending] = useActionState(loginAction, initialState);
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <form action={formAction} className="space-y-5">
@@ -36,7 +43,7 @@ export const LoginForm = () => {
             autoComplete="username"
             required
             autoFocus
-            className="field pl-10"
+            className="field pl-11"
             placeholder="you@tms-digital.com"
           />
         </div>
@@ -57,12 +64,25 @@ export const LoginForm = () => {
           <input
             id="password"
             name="password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             autoComplete="current-password"
             required
-            className="field pl-10"
+            className="field pl-11 pr-11"
             placeholder="••••••••"
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword((visible) => !visible)}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+            aria-pressed={showPassword}
+            className="absolute right-3 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-md text-slate-gray transition-colors hover:text-foreground"
+          >
+            {showPassword ? (
+              <EyeOff className="size-4" aria-hidden />
+            ) : (
+              <Eye className="size-4" aria-hidden />
+            )}
+          </button>
         </div>
       </div>
 
