@@ -75,7 +75,11 @@ export async function POST(request: Request) {
     });
 
     if (error) {
-      console.error("[contact] Resend rejected the message:", error);
+      console.error(
+        `[contact] Resend rejected the message (from=${JSON.stringify(from)} ` +
+          `to=${JSON.stringify(to)}):`,
+        error
+      );
       return NextResponse.json(
         { error: describeSendError(error) },
         { status: 502 }
@@ -95,17 +99,26 @@ export async function POST(request: Request) {
 /**
  * Normalises an address from an environment variable.
  *
- * Values pasted into a hosting dashboard often arrive wrapped in quotes or
- * padded with whitespace or a stray newline, none of which Resend accepts.
- * Returns null when the value is missing or unusable so the caller falls
- * back to a known-good default rather than failing the send.
+ * Values pasted into a hosting dashboard often carry invisible characters
+ * (zero-width spaces, BOMs, non-breaking spaces) or smart quotes from a rich
+ * text source. None are valid in an address, but several are easy to miss by
+ * eye and survive a naive regex, so strip them explicitly. Returns null when
+ * the value is unusable so the caller falls back to a known-good default.
  */
 const readAddress = (raw: string | undefined): string | null => {
   if (!raw) return null;
 
-  let cleaned = raw.replace(/\s+/g, " ").trim();
+  let cleaned = raw
+    /* Zero-width and word-joiner characters carry no meaning here. */
+    .replace(/[\u200b-\u200d\u2060\ufeff]/g, "")
+    /* Non-breaking and exotic spaces behave as separators. */
+    .replace(/[\u00a0\u1680\u2000-\u200a\u202f\u205f\u3000]/g, " ")
+    /* Smart quotes, so the stripping below catches them. */
+    .replace(/[\u2018\u2019\u201a\u201b]/g, "'")
+    .replace(/[\u201c\u201d\u201e\u201f]/g, '"')
+    .replace(/\s+/g, " ")
+    .trim();
 
-  /* Strip wrapping quotes, which dashboards often keep from a pasted value. */
   while (
     cleaned.length > 1 &&
     ((cleaned.startsWith('"') && cleaned.endsWith('"')) ||
@@ -121,18 +134,21 @@ const readAddress = (raw: string | undefined): string | null => {
   if (!cleaned) return null;
 
   /* Accept `email@example.com` and `Name <email@example.com>`. */
-  const plain = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]{2,}$/;
-  const named = /^[^<>]+<\s*([^\s@<>]+@[^\s@<>]+\.[^\s@<>]{2,})\s*>$/;
+  const plain = /^[^\s@<>",;]+@[^\s@<>",;]+\.[A-Za-z]{2,}$/;
+  const named = /^[^<>]+<\s*([^\s@<>",;]+@[^\s@<>",;]+\.[A-Za-z]{2,})\s*>$/;
 
   if (plain.test(cleaned)) return cleaned;
 
   const match = cleaned.match(named);
   if (match) {
-    const name = cleaned.slice(0, cleaned.indexOf("<")).trim();
+    const name = cleaned.slice(0, cleaned.indexOf("<")).trim().replace(/^["']|["']$/g, "");
     return `${name} <${match[1]}>`;
   }
 
-  console.error(`[contact] Ignoring malformed address: ${JSON.stringify(raw)}`);
+  console.error(
+    `[contact] Ignoring malformed address ${JSON.stringify(raw)} ` +
+      `(codepoints: ${[...raw].map((c) => c.codePointAt(0)?.toString(16)).join(" ")})`
+  );
   return null;
 };
 
