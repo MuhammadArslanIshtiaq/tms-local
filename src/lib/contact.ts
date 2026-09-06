@@ -6,51 +6,35 @@ export type ContactPayload = {
   message: string;
 };
 
-export const CONTACT_EMAIL = "hr@tmsdigitalhub.com";
+export const CONTACT_EMAIL = "hello@tmsdigitalhub.com";
 
 /**
- * Posts to `NEXT_PUBLIC_CONTACT_ENDPOINT` when one is configured (e.g. a
- * Formspree or Resend handler). Without an endpoint it falls back to opening
- * the visitor's mail client with the enquiry pre-filled, so the form still
- * does something useful out of the box.
+ * Sends the enquiry to the server, which emails it to CONTACT_EMAIL.
+ *
+ * Posts to `/api/contact` by default; set `NEXT_PUBLIC_CONTACT_ENDPOINT` to
+ * use a third-party handler (Formspree and similar) instead. Surfaces the
+ * server's message so the form can explain what went wrong.
  */
 export const submitContact = async (payload: ContactPayload): Promise<void> => {
-  const endpoint = process.env.NEXT_PUBLIC_CONTACT_ENDPOINT;
+  const endpoint = process.env.NEXT_PUBLIC_CONTACT_ENDPOINT || "/api/contact";
 
-  if (endpoint) {
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
 
-    if (!response.ok) {
-      throw new Error(`Request failed with status ${response.status}`);
-    }
-    return;
+  if (!response.ok) {
+    const detail = await response
+      .json()
+      .then((body: { error?: string }) => body?.error)
+      .catch(() => undefined);
+
+    throw new Error(detail ?? `Request failed with status ${response.status}`);
   }
-
-  const subject = payload.service
-    ? `New enquiry — ${payload.service}`
-    : `New enquiry from ${payload.name}`;
-
-  const body = [
-    `Name: ${payload.name}`,
-    `Email: ${payload.email}`,
-    payload.company ? `Company: ${payload.company}` : null,
-    payload.service ? `Interested in: ${payload.service}` : null,
-    "",
-    payload.message,
-  ]
-    .filter(Boolean)
-    .join("\n");
-
-  window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(
-    subject
-  )}&body=${encodeURIComponent(body)}`;
 };
 
 export const isValidEmail = (value: string) =>

@@ -5,6 +5,7 @@ import { AnimatePresence, motion, useScroll, useMotionValueEvent } from "framer-
 import { ArrowUpRight, Menu, Moon, Sun, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
+import { CONTACT_EMAIL } from "@/lib/contact";
 import { Logo } from "./Logo";
 
 const navLinks = [
@@ -240,10 +241,10 @@ const MobileMenu = ({
           <ArrowUpRight className="size-4" aria-hidden />
         </Link>
         <a
-          href="mailto:hr@tmsdigitalhub.com"
+          href={`mailto:${CONTACT_EMAIL}`}
           className="mt-4 block text-center text-sm text-slate-gray"
         >
-          hr@tmsdigitalhub.com
+          {CONTACT_EMAIL}
         </a>
       </motion.div>
     </div>

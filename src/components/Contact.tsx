@@ -62,6 +62,7 @@ export const Contact = () => {
   const [form, setForm] = useState(EMPTY);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [status, setStatus] = useState<Status>("idle");
+  const [errorDetail, setErrorDetail] = useState<string | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -85,8 +86,10 @@ export const Contact = () => {
       const selected = serviceOptions.find((o) => o.value === form.service);
       await submitContact({ ...form, service: selected?.label });
       setStatus("success");
+      setErrorDetail(null);
       setForm(EMPTY);
-    } catch {
+    } catch (cause) {
+      setErrorDetail(cause instanceof Error ? cause.message : null);
       setStatus("error");
     }
   };
@@ -286,8 +289,9 @@ export const Contact = () => {
                         role="alert"
                         className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400"
                       >
-                        Something went wrong sending your message. Please email
-                        us directly at{" "}
+                        {errorDetail ??
+                          "Something went wrong sending your message."}{" "}
+                        You can also email us directly at{" "}
                         <a href={`mailto:${CONTACT_EMAIL}`} className="underline">
                           {CONTACT_EMAIL}
                         </a>

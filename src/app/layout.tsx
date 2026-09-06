@@ -82,7 +82,7 @@ const organizationSchema = {
   name: "TMS DigitalHub",
   url: SITE_URL,
   description: DESCRIPTION,
-  email: "hr@tmsdigitalhub.com",
+  email: "hello@tmsdigitalhub.com",
   address: {
     "@type": "PostalAddress",
     streetAddress: "1001 S Main St STE 500",

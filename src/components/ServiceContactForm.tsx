@@ -23,6 +23,7 @@ export const ServiceContactForm = ({ serviceName }: ServiceContactFormProps) => 
   const [form, setForm] = useState(EMPTY);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [status, setStatus] = useState<Status>("idle");
+  const [errorDetail, setErrorDetail] = useState<string | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -43,8 +44,10 @@ export const ServiceContactForm = ({ serviceName }: ServiceContactFormProps) => 
     try {
       await submitContact({ ...form, service: serviceName });
       setStatus("success");
+      setErrorDetail(null);
       setForm(EMPTY);
-    } catch {
+    } catch (cause) {
+      setErrorDetail(cause instanceof Error ? cause.message : null);
       setStatus("error");
     }
   };
@@ -164,7 +167,7 @@ export const ServiceContactForm = ({ serviceName }: ServiceContactFormProps) => 
                 role="alert"
                 className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400"
               >
-                Something went wrong. Email us at{" "}
+                {errorDetail ?? "Something went wrong."} You can also email us at{" "}
                 <a href={`mailto:${CONTACT_EMAIL}`} className="underline">
                   {CONTACT_EMAIL}
                 </a>
